@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Partners Map</title>
+<title>Community Law Office Partners Map</title>
 
 <!-- Raleway font -->
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -38,20 +38,45 @@ body{
   box-sizing:border-box;
 }
 
-/* Stage stacks: top-panels then map fills */
+/* Stage stacks: top-panels then map below (full width) */
 .stage {
   display:grid;
-  grid-template-rows: auto 1fr;  /* top panels auto, map fills */
-  gap:12px;
+  grid-template-rows: auto auto;  /* top panels auto, map fixed below */
+  gap:32px;
   height:100%;
   min-height:0;
 }
+  #map {
+  margin-top: 20px; /* extra spacing below the top panels */
+}
 
-/* Top row with two panels (Partners left, Filters right) */
+/* Top row with two panels (Partners left, Filters/Detail right) */
 .top-panels {
   display:grid;
-  grid-template-columns:  260px 1fr; /* Partners fixed at 260px, Filters takes the rest */
+  grid-template-columns: 260px 1fr; /* Partners fixed at 260px, Filters/Detail take the rest */
   gap:16px;
+  align-items:stretch;
+}
+  /* Panels fill the grid track height */
+.legend, .controls {
+  height: 100%;
+}
+
+/* Let the right panel stack filters + description vertically */
+.controls {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Let the description area expand to fill remaining height in the right panel */
+.detail {
+  margin-top: 12px;
+  flex-grow: 1;   /* <- matches Partners panel height without inner scroll */
+}
+
+/* Ensure no inner scrolling in the partners list */
+.legend, .legend-list {
+  overflow: visible;
 }
 
 /* Panels style */
@@ -127,23 +152,12 @@ body{
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
-  /* remove overflow/height restrictions */
-  overflow: visible;     
-  max-height: none;      
-  height: auto;          
-  color: #111;
-}
-.legend-list {
-  max-height: none;  /* remove inner scroll */
   overflow: visible;
+  color: #111;
 }
 .legend-header {
   padding:10px 12px;
   border-bottom:1px solid var(--hotpink);
-}
-.legend-list {
-  overflow:auto;
-  max-height: calc(45vh - 48px);
 }
 .legend-list .item {
   padding:10px 12px;
@@ -160,8 +174,10 @@ body{
 }
 .legend-list .item.active h4 { color:var(--hotpink); font-weight:700; }
 .legend-list .meta { font-size:12px; color:#555; font-family:"Raleway",sans-serif; }
+/* Hide the meta line under partner names (removes main practice area under name) */
+.legend-list .meta { display: none !important; }
 
-/* Detail card now INSIDE the controls panel */
+/* Detail card (inside controls, under filters) */
 .detail{
   background:#fff;
   border:1px solid #e5e7eb;
@@ -170,7 +186,7 @@ body{
   position:relative;
   font-family:"Raleway",sans-serif;
   color:#111;
-  margin-top: 12px;  /* space from Sort by */
+  margin-top:12px;
 }
 .detail h2{margin:0 0 6px 0;font-size:17px;color:#111}
 .detail .kv{font-size:13px}
@@ -178,7 +194,32 @@ body{
 .kv a{text-decoration:underline}
 .section-title{margin-top:10px;font-weight:700;font-size:13px}
 
-/* Category pills in description */
+/* logo inside description */
+.detail-header .titlewrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.detail-logo{
+  width:40px;
+  height:40px;
+  border-radius:8px;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  object-fit:contain;
+  flex:0 0 auto;
+}
+.detail h2{
+  margin:0;
+  font-size:17px;
+  color:#111;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Category pills */
 .pill{
   display:inline-block;
   background: var(--hotpink);
@@ -188,23 +229,34 @@ body{
   font-size:11px;
   margin:2px 4px 0 0;
 }
-
 .detail-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
 .detail-close{border:none;background:#f3f4f6;border-radius:10px;font-size:18px;line-height:1;padding:4px 10px;cursor:pointer}
 .detail-close:hover{background:#e5e7eb}
 .detail .empty{color:var(--hotpink);font-weight:600}
 
-/* Map fills remaining height */
+/* Map placed BELOW the top panels (full width) */
 #map{
   border:1px solid #e5e7eb;
   border-radius:14px;
-  height:100%;
   background:#fff;
-  min-height: 300px;
+  width:100%;
+  height:650px;   /* adjust as you like */
+  min-height:380px;
 }
 
 /* Grayscale tiles */
 #map .leaflet-tile { filter: grayscale(100%) saturate(0) contrast(1.05); }
+
+/* Logo markers on the map */
+.leaflet-marker-icon.partner-logo-icon {
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:2px solid #fff;
+  background:#fff;
+  box-shadow:0 0 6px rgba(0,0,0,.25);
+  object-fit:cover;
+}
 
 /* Leaflet popup styling */
 .leaflet-container .leaflet-popup-content{font-family:"Raleway",system-ui,sans-serif;font-size:13px}
@@ -214,7 +266,6 @@ body{
 /* Responsive stacking */
 @media (max-width:1000px){
   .top-panels { grid-template-columns: 1fr; }
-  .legend, .legend-list { max-height: none; }
 }
 </style>
 </head>
@@ -222,17 +273,17 @@ body{
 <div class="layout">
   <main class="stage">
 
-    <!-- Top: Partners (left) + Filters (right) -->
+    <!-- Top: Partners (left) + Filters (with Description) right -->
     <div class="top-panels">
 
       <!-- Partners panel -->
-      <div class="legend">
+      <aside class="legend">
         <div class="legend-header"><span>Partners</span></div>
         <div id="list" class="legend-list" role="listbox" aria-label="Partner list"></div>
-      </div>
+      </aside>
 
-      <!-- Filters panel (NOW includes the detail card) -->
-      <div class="controls">
+      <!-- Filters + Detail panel -->
+      <section class="controls">
         <div class="row">
           <label>Search</label>
           <input id="search" type="text" placeholder="Search partners, services, or notes…"/>
@@ -251,15 +302,16 @@ body{
           </select>
         </div>
 
-        <!-- Description panel moved HERE -->
+        <!-- Description panel lives under the filters -->
         <section id="detail" class="detail" aria-live="polite" aria-atomic="true">
           <div class="empty">Select a partner from the list of names to find out more!</div>
         </section>
-      </div>
+      </section>
     </div>
 
-    <!-- Map fills the rest of the iframe height -->
+    <!-- Map sits BELOW both panels (full width) -->
     <div id="map"></div>
+
   </main>
 </div>
 
@@ -273,16 +325,28 @@ body{
   const MARKER_STYLE={radius:6,weight:1.5,color:'var(--hotpink-border)',fillColor:'var(--hotpink)',fillOpacity:0.9};
 
   const FIELD_ALIASES={
-    name:['_Name','Name'],address:['_Address','Address','Location','Street'],lat:['_Latitude','Latitude','Lat'],
-    lng:['_Longitude','Longitude','Lng','Long'],website:['_Website','Website','URL'],
-    description:['_Description','Description','Notes'],category:['_Category','Category','Main Practice areas','Main Practice Areas'],
-    primary:['_PrimaryCategory','PrimaryCategory'],intake:['_Intake','Intake'],
-    geoElig:['_GeographicEligibility','Geographic Eligibility'],finElig:['_FinancialEligibility','Financial Eligibility']
+    name:['_Name','Name'],
+    address:['_Address','Address'],
+    lat:['_Latitude','Latitude'],
+    lng:['_Longitude','Longitude'],
+    website:['_Website','Website'],
+    description:['_Description','Description'],
+    category:['_Category','Category','Main Practice areas','Main Practice Areas'],
+    primary:['_PrimaryCategory','PrimaryCategory'],
+    intake:['_Intake','Intake'],
+    geoElig:['_GeographicEligibility','Geographic Eligibility'],
+    finElig:['_FinancialEligibility','Financial Eligibility'],
+    logo:['_Logo','Logo'] // partner logo
   };
 
-  const els={search:document.getElementById('search'),sort:document.getElementById('sort'),
-    cats:document.getElementById('category-filters'),clearCats:document.getElementById('clear-cats'),
-    list:document.getElementById('list'),detail:document.getElementById('detail')};
+  const els={
+    search:document.getElementById('search'),
+    sort:document.getElementById('sort'),
+    cats:document.getElementById('category-filters'),
+    clearCats:document.getElementById('clear-cats'),
+    list:document.getElementById('list'),
+    detail:document.getElementById('detail')
+  };
 
   let data=[],filtered=[],activeId=null,currentBounds=null;
   const practiceAreas=new Set();
@@ -339,29 +403,30 @@ body{
     return b.isValid()? b : L.latLngBounds([[41.85,-87.75],[42.05,-87.55]]);
   }
 
-  function renderCategories(){
-    els.cats.innerHTML='';
-    Array.from(practiceAreas).sort((a,b)=>a.localeCompare(b)).forEach(cat=>{
-      const span=document.createElement('span');
-      span.className='chip';
-      span.textContent=cat; span.dataset.value=cat;
-      span.onclick=()=>{span.classList.toggle('active');applyFilters();};
-      els.cats.appendChild(span);
-    });
-  }
-
-  function clearCategoryFilters(){
-    els.cats.querySelectorAll('.chip.active').forEach(ch=>ch.classList.remove('active'));
-    applyFilters();
-  }
-
+  // Logo markers (fallback to hot pink circle)
   function renderMarkers(rows){
-    layerGroup.clearLayers();markers.length=0;
+    layerGroup.clearLayers(); markers.length=0;
+
     rows.forEach(r=>{
       const lat=parseFloat(pick(r,FIELD_ALIASES.lat));
       const lng=parseFloat(pick(r,FIELD_ALIASES.lng));
       if(isNaN(lat)||isNaN(lng))return;
-      const m=L.circleMarker([lat,lng],MARKER_STYLE);
+
+      const logo=pick(r,FIELD_ALIASES.logo);
+      let m;
+      if(logo){
+        const icon=L.icon({
+          iconUrl:logo,
+          iconSize:[40,40],
+          iconAnchor:[20,40],     // bottom center
+          popupAnchor:[0,-38],
+          className:'partner-logo-icon'
+        });
+        m=L.marker([lat,lng],{icon});
+      } else {
+        m=L.circleMarker([lat,lng],MARKER_STYLE);
+      }
+
       m.__id=r.__id;
       m.bindPopup(popupHTML(r),{maxWidth:300,autoPan:true,autoPanPadding:[30,30]});
       m.on('click',()=>{selectById(r.__id,true);map.once('moveend',()=>m.openPopup());m.openPopup();});
@@ -373,8 +438,11 @@ body{
         }
         if(currentBounds) map.fitBounds(currentBounds,{padding:[20,20]});
       });
-      markers.push(m);layerGroup.addLayer(m);
+
+      markers.push(m);
+      layerGroup.addLayer(m);
     });
+
     currentBounds=boundsFromRows(rows);
     map.fitBounds(currentBounds,{padding:[20,20]});
   }
@@ -413,11 +481,11 @@ body{
       return;
     }
     const name=pick(r,FIELD_ALIASES.name)||'Untitled';
+    const logo=pick(r,FIELD_ALIASES.logo);
     const addr=pick(r,FIELD_ALIASES.address);
     const site=pick(r,FIELD_ALIASES.website);
     const desc=pick(r,FIELD_ALIASES.description);
     const cats=splitCats(pick(r,FIELD_ALIASES.category));
-    const primary=pick(r,FIELD_ALIASES.primary)||(cats[0]||'');
     const intake=pick(r,FIELD_ALIASES.intake);
     const geo=pick(r,FIELD_ALIASES.geoElig);
     const fin=pick(r,FIELD_ALIASES.finElig);
@@ -425,7 +493,10 @@ body{
 
     els.detail.innerHTML=`
       <div class="detail-header">
-        <h2>${name}</h2>
+        <div class="titlewrap">
+          ${logo ? `<img class="detail-logo" src="${logo}" alt="${name} logo" loading="lazy">` : ``}
+          <h2>${name}</h2>
+        </div>
         <button class="detail-close" id="detail-close" aria-label="Close">×</button>
       </div>
       ${cats.length?`<div>${cats.map(c=>`<span class="pill">${c}</span>`).join('')}</div>`:''}
@@ -520,13 +591,25 @@ body{
         return Object.assign({},r,{__id:idx+1});
       });
 
-      renderCategories();
+      // Render category chips from data
+      els.cats.innerHTML='';
+      Array.from(practiceAreas).sort((a,b)=>a.localeCompare(b)).forEach(cat=>{
+        const span=document.createElement('span');
+        span.className='chip';
+        span.textContent=cat; span.dataset.value=cat;
+        span.onclick=()=>{span.classList.toggle('active');applyFilters();};
+        els.cats.appendChild(span);
+      });
+
       applyFilters();
 
       // listeners
       els.search.addEventListener('input',applyFilters);
       els.sort.addEventListener('change',applyFilters);
-      els.clearCats.addEventListener('click',clearCategoryFilters);
+      els.clearCats.addEventListener('click',()=>{
+        els.cats.querySelectorAll('.chip.active').forEach(ch=>ch.classList.remove('active'));
+        applyFilters();
+      });
     },
     error:err=>{
       console.error('CSV load error',err);
