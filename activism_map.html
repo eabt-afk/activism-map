@@ -56,17 +56,24 @@ body{
 .controls {
   display: flex;
   flex-direction: column;
-  position: relative;           /* for toggle */
-  padding-top: 60px;            /* push Search below toggle row */
+  position: relative;
 }
+
+/* Top row that only holds the language toggle */
+.row-top{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  margin-bottom: 12px;
+}
+
+/* Language toggle pill */
 .lang-toggle{
-  position:absolute; top:14px; right:14px;
   border:1px solid var(--hotpink);
   background:#fff; color:var(--hotpink);
   border-radius:999px; padding:8px 16px;
   font-size:13px; cursor:pointer;
   font-family:"Raleway", sans-serif; font-weight:700;
-  z-index:10;
 }
 .lang-toggle[aria-pressed="true"]{
   background:var(--hotpink); color:#fff; border-color:var(--hotpink);
@@ -207,18 +214,22 @@ body{
       </aside>
 
       <section class="controls">
-        <!-- Language toggle -->
-        <button id="lang-toggle" class="lang-toggle" aria-pressed="false" title="Switch to Spanish">Español</button>
+        <!-- Row with ONLY the language toggle (above Search) -->
+        <div class="row row-top">
+          <button id="lang-toggle" class="lang-toggle" aria-pressed="false" title="Switch to Spanish">Español</button>
+        </div>
 
         <div class="row">
           <label id="lbl-search">Search</label>
           <input id="search" type="text" placeholder="Search partners, services, or notes…"/>
         </div>
+
         <div class="row row-inline">
           <label id="lbl-practice" style="margin:0">Practice Areas</label>
           <button id="clear-cats" class="btn-clear" type="button">Clear filters</button>
         </div>
         <div id="category-filters" class="chips"></div>
+
         <div class="row">
           <label id="lbl-sort">Sort by</label>
           <select id="sort">
@@ -262,7 +273,7 @@ body{
     finElig:['_FinancialEligibility','Financial Eligibility'],
     logo:['_Logo','Logo']
   };
-  /* Spanish columns you added */
+  /* Spanish columns */
   const FIELD_ALIASES_ES={
     name:['_Name_es','Name_es'],
     address:['_Address_es','Address_es'],
